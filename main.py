@@ -6,7 +6,7 @@ import sys
 pygame.init()
 pygame.mixer.music.load('music/melody.mp3')
 pygame.mixer.music.play(-1)
-vol = 0.5
+vol = 0.2
 pygame.mixer.music.set_volume(vol)
 size = WIDTH, HEIGHT = 1000, 800
 display = pygame.display.set_mode((1000, 600))
@@ -20,6 +20,13 @@ score = 0
 score1 = 0
 score2 = 0
 effects = []
+
+hero_width = 66
+hero_height = 62
+hero_x = 100
+hero_y = 200
+
+
 
 player_hearts = 3
 player_heart = pygame.image.load('image/heart.png')
@@ -44,8 +51,6 @@ slime_blue_images = [pygame.image.load("image/slime_blue1.png"),
                      pygame.image.load("image/slime_blue2.png"),
                      pygame.image.load("image/slime_blue3.png"),
                      pygame.image.load("image/slime_blue4.png")]
-
-coin_bonus_image = pygame.image.load("image/bonus.png")
 
 spark_images = [pygame.image.load("image/boom1.png"),
                 pygame.image.load("image/boom2.png"),
@@ -321,19 +326,6 @@ class Bonus:
                           (self.x - display_scroll[0], self.y - display_scroll[1]))
 
 
-class BonusCoin:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.active = True
-        self.animation_images = coin_bonus_image
-
-    def main(self, display1):
-        if self.active:
-            display1.blit(pygame.transform.scale(self.animation_images, (32, 30)),
-                          (self.x - display_scroll[0], self.y - display_scroll[1]))
-
-
 class PlayerBullet:
     def __init__(self, x, y, mouse_x_2, mouse_y_2):
         self.x = x
@@ -360,9 +352,6 @@ class PlayerBullet:
                     enemy_1.remove(enemy1)
                     score2 += 80
                 player_bullets.remove(self)
-
-        for bonus4 in bonus_coin:
-            bonus4.main(display1)
 
         for enemy2 in enemy_2:
             if (enemy2.x - display_scroll[0] < self.x + 16 < enemy2.x - display_scroll[0] + 32 and
@@ -415,8 +404,6 @@ bonus1 = [Bonus(1000, 800),
 
 player = Player(400, 300, 32, 32)
 
-bonus_coin = [BonusCoin(500, 800)]
-
 display_scroll = [0, 0]
 
 player_bullets = []
@@ -444,7 +431,7 @@ if __name__ == "__main__":
 
     while running:
 
-        display.blit(bg_img, (0, 0))
+        display.blit(bg_img, (-display_scroll[0], -display_scroll[1]))
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         if player.hearts <= 0:
@@ -471,7 +458,7 @@ if __name__ == "__main__":
 
         pygame.draw.rect(display, (255, 255, 255), (100 - display_scroll[0], 100 - display_scroll[1], 16, 16))
 
-        if keys[pygame.K_a]:
+        if keys[pygame.K_a] and hero_x + hero_width < WIDTH:
             display_scroll[0] -= 5
 
             player.moving_left = True
@@ -479,7 +466,7 @@ if __name__ == "__main__":
             for bullet in player_bullets:
                 bullet.x += 5
 
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] and hero_x > 0:
             display_scroll[0] += 5
 
             player.moving_right = True
@@ -487,13 +474,13 @@ if __name__ == "__main__":
             for bullet in player_bullets:
                 bullet.x -= 5
 
-        if keys[pygame.K_w]:
+        if keys[pygame.K_w] and hero_y + hero_height < HEIGHT:
             display_scroll[1] -= 5
 
             for bullet in player_bullets:
                 bullet.y += 5
 
-        if keys[pygame.K_s]:
+        if keys[pygame.K_s] and hero_y > 0:
             display_scroll[1] += 5
 
             for bullet in player_bullets:
@@ -516,7 +503,7 @@ if __name__ == "__main__":
         for bonus in bonus1:
             bonus.main(display)
 
-        for bonus in bonus_coin:
+        for bonus in bonus1:
             bonus.main(display)
 
         player.display_hearts(display)
